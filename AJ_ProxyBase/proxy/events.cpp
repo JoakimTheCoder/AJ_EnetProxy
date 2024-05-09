@@ -91,16 +91,15 @@ bool events::out::generictext(std::string packet) {
             rtvar var1;
             using namespace httplib;
             Headers Header;
-            Client cli("https://api.surferwallet.net"); // API for server data. (Using heysurfer's api)
+            Header.insert(std::make_pair("User-Agent", "UbiServices_SDK_2019.Release.27_PC64_unicode_static"));
+            Header.insert(std::make_pair("Host", "www.growtopia1.com"));
+            Client cli("https://growtopia2.com");
             cli.set_default_headers(Header);
             cli.enable_server_certificate_verification(false);
             cli.set_connection_timeout(2, 0);
-            auto res = cli.Post("/Growtopia");
+            auto res = cli.Post("/growtopia/server_data.php");
             if (res.error() == Error::Success)
                 var1 = rtvar::parse({ res->body });
-            else
-            {
-            }
             g_server->meta = (var1.find("meta") ? var1.get("meta") : (g_server->meta = var1.get("meta"))); // get meta from API
         }
         var.set("meta", g_server->meta); // you need meta for logging in to growtopia.
@@ -163,35 +162,6 @@ bool events::in::variantlist(gameupdatepacket_t* packet) {
     } break;
     case fnv32("OnDialogRequest"): {
         auto content = varlist[1].get_string();
-
-        if (content.find("set_default_color|`o") != -1)
-        {
-            if (content.find("end_dialog|captcha_submit||Submit|") != -1)
-            {
-                gt::solve_captcha(content);
-                return true;
-            }
-
-            //hide unneeded ui when resolving
-            //for the /uid command
-
-        }
-        else if (gt::resolving_uid2 && content.find("`4Stop ignoring") != -1) {
-            int pos = content.rfind("|`4Stop ignoring");
-            auto ignore_substring = content.substr(0, pos);
-            auto uid = ignore_substring.substr(ignore_substring.rfind("add_button|") + 11);
-            auto uid_int = atoi(uid.c_str());
-            if (uid_int == 0) {
-                gt::resolving_uid2 = false;
-                gt::send_log("name resolving seems to have failed.");
-            }
-            else {
-                gt::send_log("Target UID: " + uid);
-                g_server->send(false, "action|dialog_return\ndialog_name|friends\nbuttonClicked|" + uid);
-                g_server->send(false, "action|dialog_return\ndialog_name|friends_remove\nfriendID|" + uid + "|\nbuttonClicked|remove");
-            }
-            return true;
-        }
     } break;
     case fnv32("OnRemove"): {
         auto text = varlist.get(1).get_string();
@@ -250,27 +220,11 @@ bool events::in::variantlist(gameupdatepacket_t* packet) {
 }
 bool events::in::generictext(std::string packet) {
     PRINTC("Generic text: %s\n", packet.c_str());
-
     return false;
 }
 
 bool events::in::gamemessage(std::string packet) {
     PRINTC("Game message: %s\n", packet.c_str());
-
-    if (gt::resolving_uid2) {
-        if (packet.find("PERSON IGNORED") != -1) {
-            g_server->send(false, "action|dialog_return\ndialog_name|friends_guilds\nbuttonClicked|showfriend");
-            g_server->send(false, "action|dialog_return\ndialog_name|friends\nbuttonClicked|friend_all");
-        }
-        else if (packet.find("Nobody is currently online with the name") != -1) {
-            gt::resolving_uid2 = false;
-            gt::send_log("Target is offline, cant find uid.");
-        }
-        else if (packet.find("Clever perhaps") != -1) {
-            gt::resolving_uid2 = false;
-            gt::send_log("Target is a moderator, can't ignore them.");
-        }
-    }
     return false;
 }
 
@@ -299,15 +253,6 @@ bool events::in::state(gameupdatepacket_t* packet) {
         return false;
     if (packet->m_player_flags == -1)
         return false;
-
-    auto& players = g_server->m_world.players;
-    for (auto& player : players) {
-        if (player.netid == packet->m_player_flags) {
-            player.pos = vector2_t{ packet->m_vec_x, packet->m_vec_y };
-            PRINTC("player %s position is %.0f %.0f\n", player.name.c_str(), player.pos.m_x, player.pos.m_y);
-            break;
-        }
-    }
     return false;
 }
 bool events::in::tracking(std::string packet) {
