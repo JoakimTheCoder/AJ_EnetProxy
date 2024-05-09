@@ -28,7 +28,7 @@ class server {
     std::string m_server = "213.179.209.168";
     std::string meta = "NULL";
 
-    int m_port = 17198;
+    int m_port = 17184;
     int m_proxyport = 17191;
     world m_world;
     bool start();
