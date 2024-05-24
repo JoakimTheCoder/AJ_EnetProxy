@@ -12,7 +12,7 @@ void server::handle_outgoing() {
 
         switch (evt.type) {
             case ENET_EVENT_TYPE_CONNECT: {
-                m_gt_peer = evt.peer; // client peer will only change if you connect (world lag fix)
+                m_gt_peer = evt.peer; // client peer will only change when you connect (world lag fix)
                 if (!this->connect())
                     return;
             } break;
