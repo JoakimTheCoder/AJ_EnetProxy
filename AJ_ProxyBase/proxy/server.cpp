@@ -9,10 +9,10 @@
 void server::handle_outgoing() {
     ENetEvent evt;
     while (enet_host_service(m_proxy_server, &evt, 0) > 0) {
-        m_gt_peer = evt.peer;
 
         switch (evt.type) {
             case ENET_EVENT_TYPE_CONNECT: {
+                m_gt_peer = evt.peer; // client peer will only change if you connect (world lag fix)
                 if (!this->connect())
                     return;
             } break;
@@ -74,7 +74,7 @@ void server::handle_outgoing() {
                 if (!m_server_peer || !m_real_server)
                     return;
                 enet_peer_send(m_server_peer, 0, evt.packet);
-                enet_host_flush(m_real_server);
+                enet_host_flush(m_real_server); 
             } break;
             case ENET_EVENT_TYPE_DISCONNECT: {
                 if (gt::in_game)
@@ -336,7 +336,7 @@ void server::send(bool client, int32_t type, uint8_t* data, int32_t len) {
     int code = enet_peer_send(peer, 0, packet);
     if (code != 0)
         PRINTS("Error sending packet! code: %d\n", code);
-    enet_host_flush(host);
+    //enet_host_flush(host); if you send many packets quickly, the proxy will crash
 }
 
 //bool client: true - sends to growtopia client    false - sends to gt server
@@ -372,7 +372,7 @@ void server::send(bool client, variantlist_t& list, int32_t netid, int32_t delay
 
     auto packet = enet_packet_create(game_packet, data_size + sizeof(gameupdatepacket_t), ENET_PACKET_FLAG_RELIABLE);
     enet_peer_send(peer, 0, packet);
-    enet_host_flush(host);
+    //enet_host_flush(host); if you send many packets quickly, the proxy will crash
     free(game_packet);
 }
 
@@ -392,5 +392,5 @@ void server::send(bool client, std::string text, int32_t type) {
     int code = enet_peer_send(peer, 0, packet);
     if (code != 0)
         PRINTS("Error sending packet! code: %d\n", code);
-    enet_host_flush(host);
+    //enet_host_flush(host); if you send many packets quickly, the proxy will crash
 }
