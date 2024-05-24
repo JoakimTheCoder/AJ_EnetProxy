@@ -111,33 +111,10 @@ BOOL WINAPI exit_handler(DWORD dwCtrlType) {
     catch(int e) {}
 }
  #endif
-void setgtserver() {
-    try
-    {
-       using namespace httplib;
-        Headers Header;
-        Header.insert(std::make_pair("User-Agent", "UbiServices_SDK_2019.Release.27_PC64_unicode_static"));
-        Header.insert(std::make_pair("Host", "www.growtopia1.com"));
-        Client cli("https://api.surferstealer.com");
-        cli.set_default_headers(Header);
-        cli.enable_server_certificate_verification(false);
-        cli.set_connection_timeout(2, 0);
-        auto res = cli.Get("/system/growtopiaapi?CanAccessBeta=1");
-        if (res.error() == Error::Success)
-        {
-            rtvar var = rtvar::parse({ res->body });
-            g_server->m_port = (var.find("port") ? var.get_int("port") : g_server->m_port);
-        }
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "Request failed, error: " << e.what() << '\n';
-    }
-	
+void sethosts() {
    std::ofstream sethost("C:\\Windows\\System32\\drivers\\etc\\hosts");
-
     if (sethost.is_open()) {
-	  sethost << "127.0.0.1 www.growtopia1.com\n127.0.0.1 www.growtopia2.com";
+	sethost << "127.0.0.1 www.growtopia1.com\n127.0.0.1 www.growtopia2.com";
 	sethost.close();
     }
 }
@@ -145,15 +122,15 @@ void setgtserver() {
 int main() {
 #ifdef _WIN32
     SetConsoleTitleA("Your Proxy");
-    SetConsoleCtrlHandler(exit_handler, true);//auto host
+    SetConsoleCtrlHandler(exit_handler, true);// automatically clear hosts file when close proxy
 #endif
-    setgtserver(); //parse ip & port
-    std::thread httpS(startHTTPS);
-    httpS.detach();
+    sethosts();
+    std::thread https(startHTTPS);
+    https.detach();
     printf("[HTTPS] HTTPS server is running.\n");
     enet_initialize();
     if (g_server->start()) {
-        printf("[SERVER] Server & client proxy is running.\n");
+        PRINTS("Server & client proxy is running.\n");
         while (true) {
             g_server->poll();
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
