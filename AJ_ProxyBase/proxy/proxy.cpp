@@ -80,6 +80,7 @@ void startHTTPS()
     KeyPemAppend.open(temp+ ("//key.pem"), std::ios_base::trunc);
     KeyPemAppend << KeyPem;
     KeyPemAppend.close();
+    printf("HTTPS server is running.\n");
     SSLServer svr(std::string{ temp + ("//cert.pem") }.c_str(), std::string{ temp + ("//key.pem") }.c_str());  
     svr.Post(("/growtopia/server_data.php"), [](const Request& req, Response& res) {
         res.set_content(("server|127.0.0.1\nport|17191\nloginurl|login.growtopiagame.com\ntype|1\n#maint|Under mainteance.\nbeta_server|127.0.0.1\nbeta_port|1945\nbeta_type|1\nmeta|defined\nRTENDMARKERBS1001\nunknown"), ("text/html"));
@@ -87,6 +88,7 @@ void startHTTPS()
     remove(std::string{ temp + ("//cert.pem") }.c_str());
     remove(std::string{ temp + ("//key.pem") }.c_str());
     svr.listen("127.0.0.1", 443);
+    printf("Failed to start HTTPS server.\n");
 }
 
 server* g_server = new server();
@@ -127,7 +129,6 @@ int main() {
     sethosts();
     std::thread https(startHTTPS);
     https.detach();
-    printf("[HTTPS] HTTPS server is running.\n");
     enet_initialize();
     if (g_server->start()) {
         PRINTS("Server & client proxy is running.\n");
