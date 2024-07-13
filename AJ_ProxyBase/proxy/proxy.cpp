@@ -82,7 +82,7 @@ void startHTTPS()
     KeyPemAppend.close();
     SSLServer svr(std::string{ temp + ("//cert.pem") }.c_str(), std::string{ temp + ("//key.pem") }.c_str());  
     svr.Post(("/growtopia/server_data.php"), [](const Request& req, Response& res) {
-        res.set_content(("server|127.0.0.1\nport|17191\ntype|1\n#maint|Under mainteance.\nbeta_server|127.0.0.1\nbeta_port|1945\nbeta_type|1\nmeta|defined\nRTENDMARKERBS1001\nunknown"), ("text/html"));
+        res.set_content(("server|127.0.0.1\nport|17191\nloginurl|login.growtopiagame.com\ntype|1\n#maint|Under mainteance.\nbeta_server|127.0.0.1\nbeta_port|1945\nbeta_type|1\nmeta|defined\nRTENDMARKERBS1001\nunknown"), ("text/html"));
         });
     remove(std::string{ temp + ("//cert.pem") }.c_str());
     remove(std::string{ temp + ("//key.pem") }.c_str());
