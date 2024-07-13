@@ -40,14 +40,13 @@ bool events::out::pingreply(gameupdatepacket_t* packet) {
     packet->m_vec_y = 64.f;     //build range
     packet->m_jump_amount = 0;  //for example unlim jumps set it to high which causes ban
     packet->m_player_flags = 0; //effect flags. good to have as 0 if using mod noclip, or etc.
+    PRINTC("Sent A Ping Reply!\n");
     return false;
 }
 bool fastdrop = false;
 bool fasttrash = false;
 std::string mode = "pull";
 bool events::out::generictext(std::string packet) {
-    if (!packet.find("game_version")) // hide login packet from console (it shows your password also)
-    PRINTS("Generic text: %s\n", packet.c_str());
     auto& world = g_server->m_world;
     rtvar var = rtvar::parse(packet);
     if (!var.valid())
@@ -156,7 +155,7 @@ bool events::in::variantlist(gameupdatepacket_t* packet) {
     } break;
     case fnv32("OnSendToServer"): g_server->redirect_server(varlist); return true;
     case fnv32("OnConsoleMessage"): {
-        varlist[1] = "[Your Proxy]`` " + varlist[1].get_string();
+        varlist[1] = "[Proxy]`` " + varlist[1].get_string();
         g_server->send(true, varlist);
         return true;
     } break;
@@ -243,7 +242,7 @@ bool events::in::sendmapdata(gameupdatepacket_t* packet) {
     g_server->m_world.name = std::string(name);
     g_server->m_world.connected = true;
     delete[] name;
-    PRINTC("world name is %s\n", g_server->m_world.name.c_str());
+    printf("world name is %s\n", g_server->m_world.name.c_str());
 
     return false;
 }
