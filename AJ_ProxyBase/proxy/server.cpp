@@ -9,7 +9,6 @@
 void server::handle_outgoing() {
     ENetEvent evt;
     while (enet_host_service(m_proxy_server, &evt, 0) > 0) {
-
         switch (evt.type) {
             case ENET_EVENT_TYPE_CONNECT: {
                 m_gt_peer = evt.peer; // client peer will only change when you connect (world lag fix)
