@@ -121,7 +121,7 @@ void sethosts() {
 
 int main() {
 #ifdef _WIN32
-    SetConsoleTitleA("Your Proxy");
+    SetConsoleTitleA("Proxy");
     SetConsoleCtrlHandler(exit_handler, true);// automatically clear hosts file when close proxy
 #endif
     sethosts();
